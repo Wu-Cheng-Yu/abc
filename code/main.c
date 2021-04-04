@@ -7,7 +7,6 @@
 
 
 double eval(char*);
-double getnum(char* str, int* index);
 int isoperator(int);
 
 int main(void){
