@@ -13,19 +13,23 @@ typedef struct{
 	Node* tail;
 }DDL;
 
+void init_list(DDL *list){
+	list->head = NULL;
+	list->tail = NULL;
+}
+
 void leave(DDL* list){
-	Node* temp = (*list).tail;
-	if((*list).tail == NULL){return;}
-	else if((*list).tail == (*list).head){
-		(*list).tail = NULL;
-		(*list).head = NULL;
+	if(list->tail == NULL){return;}
+	Node* temp = list->tail;
+	if(list->tail == list->head){
+		list->tail = NULL;
+		list->head = NULL;
 		free(temp);
 		return;
 	}
 	else{
-		Node* temp = (*list).tail;
-		(*list).tail = ((*list).tail)->prev;
-		((*list).tail)->next = NULL;
+		list->tail = list->tail->prev;
+		list->tail->next = NULL;
 		free(temp);
 	}
 	return;
@@ -37,28 +41,32 @@ void enter(DDL* list, int label){
 	new_node->data = label;
 	new_node->next = NULL;
 	
-	if((*list).head == NULL){
-		(*list).head = new_node;
-		(*list).tail = new_node;
+	if(list->head == NULL){
+		new_node->prev = NULL;
+		list->tail = new_node;
+		list->head = new_node;
+ 		return;
 	}
+	
 	else{
-	((*list).tail)->next = new_node;
-	new_node -> prev = (*list).tail;
-	((*list).tail) = new_node;
+	list->tail->next = new_node;
+	new_node -> prev = list->tail;
+	list->tail = new_node;
 	}
 	return;
 }
 
 void printll(DDL* list){
-	if((*list).head == NULL){
+	if(list->head == NULL){
 		printf("%c",'\n');
 		return; 
 	}
 	
-	Node* node = (*list).head;
+	Node* node = list->head;
 	
 	if(node->prev == NULL && node->next==NULL){
 		printf("%d",node->data);
+		printf("%c",'\n');
 		return;
 	} 
 	
@@ -67,34 +75,40 @@ void printll(DDL* list){
 	while(node!=NULL){
 		printf("%d ",node->data);
 		if(node->next == temp){
-			node = node->prev;
 			temp = node;
+			node = node->prev;
 		}
 		else if(node->prev == temp){
-			node = node->next;
 			temp = node;
+			node = node->next;
 		}
-			
 	}
 	printf("%c",'\n');
 	return;
 }
 
+
 void migrate(DDL* railone,DDL* railtwo){
-	if((*railtwo).head == NULL){
+	if(railtwo->head == NULL){
 		return;
 	}
 	
-	if ((*railone).head == NULL){
-		(*railone).head = (*railtwo).tail;
-		(*railone).tail = (*railtwo).head;
-		(*railtwo).head = NULL;
-		(*railtwo).tail = NULL;
+	if (railone->head == NULL){
+		railone->head = railtwo->tail;
+		railone->tail = railtwo->head;
+		railtwo->head = NULL;
+		railtwo->tail = NULL;
+		return;
 	} 
-	((*railone).tail)->next = ((*railtwo).tail);
-	(*railone).tail = (*railtwo).head;
-	(*railtwo).head = NULL;
-	(*railtwo).tail = NULL; 
+	Node* temp;
+	temp = railtwo->tail;
+	railtwo->tail = railtwo->head;
+	railtwo->head = temp;
+	railone->tail->next = railtwo->tail;  
+	railone->tail = railtwo->head;
+	railone->tail->next = NULL;
+	railtwo->head = NULL;
+	railtwo->tail = NULL; 
 	return;
 }
 
@@ -105,8 +119,7 @@ int main(void){
 	char string[10];
 	
 	for(int i=0;i<k;i++){
-		ddl[i].head = NULL;
-		ddl[i].tail = NULL;
+		init_list(&ddl[i]);
 	}
 	
 	for(int i=0;i<n;i++){
