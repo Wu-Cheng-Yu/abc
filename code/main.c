@@ -28,11 +28,29 @@ void leave(DDL* list){
 		return;
 	}
 	else{
-		list->tail = list->tail->prev;
-		list->tail->next = NULL;
-		free(temp);
+		if(list->tail->next == NULL){
+			list->tail = list->tail->prev;
+			if(list->tail->next==temp){
+				list->tail->next = NULL;
+			}
+			else if(list->tail->prev==temp){
+				list->tail->prev = NULL;
+			}
+			free(temp);
+			return;
+		}
+		if(list->tail->prev == NULL){
+			list->tail = list->tail->next;
+			if(list->tail->next==temp){
+				list->tail->next = NULL;
+			}
+			else if(list->tail->prev==temp){
+				list->tail->prev = NULL;
+			}
+			free(temp);
+			return;
+		}	
 	}
-	return;
 }	 
 
 
@@ -41,7 +59,7 @@ void enter(DDL* list, int label){
 	new_node->data = label;
 	new_node->next = NULL;
 	
-	if(list->head == NULL){
+	if(list->head == NULL&&list->tail==NULL){
 		new_node->prev = NULL;
 		list->tail = new_node;
 		list->head = new_node;
@@ -49,15 +67,23 @@ void enter(DDL* list, int label){
 	}
 	
 	else{
-	list->tail->next = new_node;
-	new_node -> prev = list->tail;
-	list->tail = new_node;
+		if(list->tail->next==NULL){
+			list->tail->next = new_node;
+			new_node -> prev = list->tail;
+			list->tail = new_node;
+			return;
+		}
+		if(list->tail->prev==NULL){
+			list->tail->prev = new_node;
+			new_node->prev = new_node;
+			list->tail = new_node;
+			return;
+		}
 	}
-	return;
 }
 
 void printll(DDL* list){
-	if(list->head == NULL){
+	if(list->head == NULL&&list->tail==NULL){
 		printf("%c",'\n');
 		return; 
 	}
@@ -88,28 +114,50 @@ void printll(DDL* list){
 }
 
 
-void migrate(DDL* railone,DDL* railtwo){
-	if(railtwo->head == NULL){
+void migrate(DDL* railtwo,DDL* railone){
+	if(railtwo->head == NULL && railtwo->tail == NULL){
 		return;
-	}
-	
+  	}
 	if (railone->head == NULL){
 		railone->head = railtwo->tail;
 		railone->tail = railtwo->head;
 		railtwo->head = NULL;
 		railtwo->tail = NULL;
 		return;
-	} 
-	Node* temp;
-	temp = railtwo->tail;
-	railtwo->tail = railtwo->head;
-	railtwo->head = temp;
-	railone->tail->next = railtwo->tail;  
-	railone->tail = railtwo->head;
-	railone->tail->next = NULL;
-	railtwo->head = NULL;
-	railtwo->tail = NULL; 
-	return;
+	}
+	else{
+		if(railone->tail->next == NULL && railtwo->tail->next == NULL){
+			railone->tail->next = railtwo->tail;
+			railtwo->tail->next = railone->tail;
+			railone->tail = railtwo->head;
+			railtwo->head = NULL;
+			railtwo->tail = NULL; 
+			return;
+		}
+		else if(railone->tail->prev == NULL && railtwo->tail->prev==NULL){
+			railone->tail->prev = railtwo->tail;
+			railtwo->tail->prev = railone->tail;
+			railone->tail = railtwo->head;
+			railtwo->head = NULL;
+			railtwo->tail = NULL;
+			return;
+		}
+		else if(railone->tail->prev == NULL && railtwo->tail->next==NULL){
+			railone->tail->prev = railtwo->tail;
+			railtwo->tail->next = railone->tail; 
+			railone->tail = railtwo->head;
+			railtwo->head = NULL;
+			railtwo->tail = NULL;
+			return;
+		}
+		else if(railone->tail->next==NULL && railtwo->tail->prev==NULL){
+			railone->tail->next = railtwo->tail;
+			railtwo->tail->prev = railone->tail;
+			railone->tail = railtwo->head;
+			railtwo->head = NULL;
+			railtwo->tail = NULL; 
+		}
+	}
 }
 
 int main(void){
